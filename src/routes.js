@@ -1,3 +1,10 @@
+/**
+ * @file routes.js
+ * @description Konfigurasi rute API untuk aplikasi notes
+ * @author Saiful Abidin
+ * @version 1.0.0
+ */
+
 // Import semua handler yang diperlukan dari file handler.js
 const {
   addNoteHandler,
@@ -39,4 +46,5 @@ const routes = [
   },
 ];
 
+// Export routes untuk digunakan di server.js
 module.exports = routes;

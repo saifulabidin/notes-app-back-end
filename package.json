@@ -18,14 +18,9 @@
     "start:prod": "NODE_ENV=production node ./src/server.js",
     "start:dev": "nodemon ./src/server.js",
     "lint": "eslint ./src",
-    "test": "jest --coverage"
+    "test": "jest --coverage",
+    "test:handler": "jest tests/handler.test.js"
   },
   "author": "",
-  "license": "ISC",
-  "jest": {
-    "testEnvironment": "node",
-    "coveragePathIgnorePatterns": [
-      "/node_modules/"
-    ]
-  }
+  "license": "ISC"
 }

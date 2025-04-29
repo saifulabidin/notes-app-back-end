@@ -1,17 +1,24 @@
+/**
+ * @file handler.js
+ * @description Berisi handler untuk semua rute API Notes
+ * @author Saiful Abidin
+ * @version 1.0.0
+ */
+
 const { nanoid } = require('nanoid');
 const notes = require('./notes');
 
 /**
  * @description Handler untuk menambahkan catatan baru
- * @param {object} request - Request object Hapi
+ * @param {object} request - Request object Hapi yang berisi payload catatan baru
  * @param {object} h - Response toolkit Hapi
- * @returns {object} Response dengan status dan data yang sesuai
+ * @returns {object} Response dengan status dan data catatan yang berhasil dibuat
  */
 const addNoteHandler = (request, h) => {
   // Ekstrak data dari payload request
   const { title = 'untitled', tags, body } = request.payload;
 
-  // Buat ID unik dan timestamp
+  // Buat ID unik dan timestamp untuk catatan baru
   const id = nanoid(16);
   const createdAt = new Date().toISOString();
   const updatedAt = createdAt;
@@ -28,6 +35,7 @@ const addNoteHandler = (request, h) => {
   const isSuccess = notes.filter((note) => note.id === id).length > 0;
 
   if (isSuccess) {
+    // Mengembalikan response sukses dengan kode 201 (Created)
     const response = h.response({
       status: 'success',
       message: 'Catatan berhasil ditambahkan',
@@ -39,7 +47,7 @@ const addNoteHandler = (request, h) => {
     return response;
   }
 
-  // Jika gagal ditambahkan
+  // Jika gagal ditambahkan, kembalikan response error dengan kode 500
   const response = h.response({
     status: 'fail',
     message: 'Catatan gagal ditambahkan',
@@ -61,9 +69,9 @@ const getAllNotesHandler = () => ({
 
 /**
  * @description Handler untuk mengambil catatan berdasarkan ID
- * @param {object} request - Request object Hapi
+ * @param {object} request - Request object Hapi yang berisi parameter ID
  * @param {object} h - Response toolkit Hapi
- * @returns {object} Response dengan catatan yang diminta atau pesan error
+ * @returns {object} Response dengan catatan yang diminta atau pesan error jika tidak ditemukan
  */
 const getNoteByIdHandler = (request, h) => {
   // Dapatkan ID dari parameter request
@@ -72,7 +80,7 @@ const getNoteByIdHandler = (request, h) => {
   // Cari catatan dengan ID yang cocok
   const note = notes.filter((n) => n.id === id)[0];
 
-  // Jika catatan ditemukan
+  // Jika catatan ditemukan, kembalikan response sukses
   if (note !== undefined) {
     return {
       status: 'success',
@@ -82,7 +90,7 @@ const getNoteByIdHandler = (request, h) => {
     };
   }
 
-  // Jika catatan tidak ditemukan
+  // Jika catatan tidak ditemukan, kembalikan response error dengan kode 404
   const response = h.response({
     status: 'fail',
     message: 'Catatan tidak ditemukan',
@@ -93,9 +101,9 @@ const getNoteByIdHandler = (request, h) => {
 
 /**
  * @description Handler untuk mengubah catatan berdasarkan ID
- * @param {object} request - Request object Hapi
+ * @param {object} request - Request object Hapi yang berisi parameter ID dan payload perubahan
  * @param {object} h - Response toolkit Hapi
- * @returns {object} Response dengan status perubahan
+ * @returns {object} Response dengan status perubahan sukses atau gagal
  */
 const editNoteByIdHandler = (request, h) => {
   // Dapatkan ID dari parameter request
@@ -111,13 +119,14 @@ const editNoteByIdHandler = (request, h) => {
   // Jika catatan ditemukan, perbarui data
   if (index !== -1) {
     notes[index] = {
-      ...notes[index],
+      ...notes[index], // Pertahankan data lain yang tidak diubah
       title,
       tags,
       body,
       updatedAt,
     };
 
+    // Kembalikan response sukses dengan kode 200 (OK)
     const response = h.response({
       status: 'success',
       message: 'Catatan berhasil diperbarui',
@@ -126,7 +135,7 @@ const editNoteByIdHandler = (request, h) => {
     return response;
   }
 
-  // Jika catatan tidak ditemukan
+  // Jika catatan tidak ditemukan, kembalikan response error dengan kode 404
   const response = h.response({
     status: 'fail',
     message: 'Gagal memperbarui catatan. Id tidak ditemukan',
@@ -137,9 +146,9 @@ const editNoteByIdHandler = (request, h) => {
 
 /**
  * @description Handler untuk menghapus catatan berdasarkan ID
- * @param {object} request - Request object Hapi
+ * @param {object} request - Request object Hapi yang berisi parameter ID
  * @param {object} h - Response toolkit Hapi
- * @returns {object} Response dengan status penghapusan
+ * @returns {object} Response dengan status penghapusan sukses atau gagal
  */
 const deleteNoteByIdHandler = (request, h) => {
   // Dapatkan ID dari parameter request
@@ -151,6 +160,8 @@ const deleteNoteByIdHandler = (request, h) => {
   // Jika catatan ditemukan, hapus dari array
   if (index !== -1) {
     notes.splice(index, 1);
+    
+    // Kembalikan response sukses dengan kode 200 (OK)
     const response = h.response({
       status: 'success',
       message: 'Catatan berhasil dihapus',
@@ -159,7 +170,7 @@ const deleteNoteByIdHandler = (request, h) => {
     return response;
   }
 
-  // Jika catatan tidak ditemukan
+  // Jika catatan tidak ditemukan, kembalikan response error dengan kode 404
   const response = h.response({
     status: 'fail',
     message: 'Catatan gagal dihapus. Id tidak ditemukan',
@@ -168,6 +179,7 @@ const deleteNoteByIdHandler = (request, h) => {
   return response;
 };
 
+// Export semua handler untuk digunakan di routes.js
 module.exports = {
   addNoteHandler,
   getAllNotesHandler,

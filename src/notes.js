@@ -1,4 +1,11 @@
 /**
+ * @file notes.js
+ * @description Modul untuk menyimpan data catatan dalam aplikasi
+ * @author Saiful Abidin
+ * @version 1.0.0
+ */
+
+/**
  * @description Array untuk menyimpan semua catatan dalam aplikasi
  * @type {Array<object>}
  * @property {string} id - ID unik untuk catatan
@@ -10,4 +17,5 @@
  */
 const notes = [];
 
+// Export array notes untuk digunakan oleh modul lain
 module.exports = notes;

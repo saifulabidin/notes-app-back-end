@@ -1,27 +1,39 @@
-const { 
-  addNoteHandler, 
-  getAllNotesHandler, 
-  getNoteByIdHandler, 
-  editNoteByIdHandler, 
-  deleteNoteByIdHandler 
+/**
+ * @file handler.test.js
+ * @description File pengujian untuk menguji semua handler di aplikasi notes
+ * @author Saiful Abidin
+ * @version 1.0.0
+ */
+
+const {
+  addNoteHandler,
+  getAllNotesHandler,
+  getNoteByIdHandler,
+  editNoteByIdHandler,
+  deleteNoteByIdHandler,
 } = require('../src/handler');
 const notes = require('../src/notes');
 
 /**
  * @description Mock untuk h object dari Hapi
+ * @type {object}
  */
 const mockH = {
-  response: (obj) => ({
-    ...obj,
-    code: (statusCode) => ({
+  response: (obj) => {
+    const responseObj = {
       ...obj,
-      statusCode,
-    }),
-  }),
+      code: (statusCode) => {
+        responseObj.statusCode = statusCode;
+        return responseObj;
+      },
+    };
+    return responseObj;
+  },
 };
 
 /**
  * @description Fungsi untuk membersihkan array notes sebelum tiap test
+ * @returns {void} Tidak mengembalikan nilai
  */
 const clearNotes = () => {
   while (notes.length > 0) {
@@ -37,6 +49,7 @@ describe('Notes Handler Tests', () => {
 
   describe('addNoteHandler', () => {
     test('harus menambahkan catatan baru dengan sukses', () => {
+      // Persiapkan request dengan payload lengkap
       const request = {
         payload: {
           title: 'Test Title',
@@ -45,7 +58,9 @@ describe('Notes Handler Tests', () => {
         },
       };
 
+      // Panggil handler yang diuji
       const response = addNoteHandler(request, mockH);
+      // Verifikasi response
       expect(response.status).toBe('success');
       expect(response.message).toBe('Catatan berhasil ditambahkan');
       expect(response.statusCode).toBe(201);
@@ -53,6 +68,7 @@ describe('Notes Handler Tests', () => {
     });
 
     test('harus menggunakan judul default jika tidak ada judul', () => {
+      // Persiapkan request tanpa judul
       const request = {
         payload: {
           tags: ['test'],
@@ -60,19 +76,24 @@ describe('Notes Handler Tests', () => {
         },
       };
 
+      // Panggil handler yang diuji
       addNoteHandler(request, mockH);
+      // Verifikasi hasil
       expect(notes[0].title).toBe('untitled');
     });
   });
 
   describe('getAllNotesHandler', () => {
     test('harus mengembalikan array notes kosong', () => {
+      // Panggil handler yang diuji
       const response = getAllNotesHandler();
+      // Verifikasi response
       expect(response.status).toBe('success');
       expect(response.data.notes).toEqual([]);
     });
 
     test('harus mengembalikan array notes dengan data', () => {
+      // Persiapkan data test
       const mockNote = {
         id: 'test-id',
         title: 'Test Title',
@@ -83,7 +104,10 @@ describe('Notes Handler Tests', () => {
       };
       notes.push(mockNote);
 
+      // Panggil handler yang diuji
       const response = getAllNotesHandler();
+
+      // Verifikasi response
       expect(response.status).toBe('success');
       expect(response.data.notes).toEqual([mockNote]);
     });
@@ -91,6 +115,7 @@ describe('Notes Handler Tests', () => {
 
   describe('getNoteByIdHandler', () => {
     test('harus mengembalikan catatan jika ID ditemukan', () => {
+      // Persiapkan data test
       const mockNote = {
         id: 'test-id',
         title: 'Test Title',
@@ -101,25 +126,33 @@ describe('Notes Handler Tests', () => {
       };
       notes.push(mockNote);
 
+      // Persiapkan request dengan ID valid
       const request = {
         params: {
           id: 'test-id',
         },
       };
 
+      // Panggil handler yang diuji
       const response = getNoteByIdHandler(request, mockH);
+
+      // Verifikasi response
       expect(response.status).toBe('success');
       expect(response.data.note).toEqual(mockNote);
     });
 
     test('harus mengembalikan 404 jika ID tidak ditemukan', () => {
+      // Persiapkan request dengan ID yang tidak ada
       const request = {
         params: {
           id: 'not-exist',
         },
       };
 
+      // Panggil handler yang diuji
       const response = getNoteByIdHandler(request, mockH);
+
+      // Verifikasi response error
       expect(response.status).toBe('fail');
       expect(response.message).toBe('Catatan tidak ditemukan');
       expect(response.statusCode).toBe(404);
@@ -128,6 +161,7 @@ describe('Notes Handler Tests', () => {
 
   describe('editNoteByIdHandler', () => {
     test('harus memperbarui catatan jika ID ditemukan', () => {
+      // Persiapkan data test
       const mockNote = {
         id: 'test-id',
         title: 'Old Title',
@@ -138,6 +172,7 @@ describe('Notes Handler Tests', () => {
       };
       notes.push(mockNote);
 
+      // Persiapkan request dengan ID valid dan data baru
       const request = {
         params: {
           id: 'test-id',
@@ -149,7 +184,10 @@ describe('Notes Handler Tests', () => {
         },
       };
 
+      // Panggil handler yang diuji
       const response = editNoteByIdHandler(request, mockH);
+
+      // Verifikasi response dan perubahan data
       expect(response.status).toBe('success');
       expect(response.message).toBe('Catatan berhasil diperbarui');
       expect(response.statusCode).toBe(200);
@@ -157,6 +195,7 @@ describe('Notes Handler Tests', () => {
     });
 
     test('harus mengembalikan 404 jika ID tidak ditemukan', () => {
+      // Persiapkan request dengan ID yang tidak ada
       const request = {
         params: {
           id: 'not-exist',
@@ -168,7 +207,10 @@ describe('Notes Handler Tests', () => {
         },
       };
 
+      // Panggil handler yang diuji
       const response = editNoteByIdHandler(request, mockH);
+
+      // Verifikasi response error
       expect(response.status).toBe('fail');
       expect(response.message).toBe('Gagal memperbarui catatan. Id tidak ditemukan');
       expect(response.statusCode).toBe(404);
@@ -177,6 +219,7 @@ describe('Notes Handler Tests', () => {
 
   describe('deleteNoteByIdHandler', () => {
     test('harus menghapus catatan jika ID ditemukan', () => {
+      // Persiapkan data test
       const mockNote = {
         id: 'test-id',
         title: 'Test Title',
@@ -187,13 +230,17 @@ describe('Notes Handler Tests', () => {
       };
       notes.push(mockNote);
 
+      // Persiapkan request dengan ID valid
       const request = {
         params: {
           id: 'test-id',
         },
       };
 
+      // Panggil handler yang diuji
       const response = deleteNoteByIdHandler(request, mockH);
+
+      // Verifikasi response dan penghapusan data
       expect(response.status).toBe('success');
       expect(response.message).toBe('Catatan berhasil dihapus');
       expect(response.statusCode).toBe(200);
@@ -201,13 +248,17 @@ describe('Notes Handler Tests', () => {
     });
 
     test('harus mengembalikan 404 jika ID tidak ditemukan', () => {
+      // Persiapkan request dengan ID yang tidak ada
       const request = {
         params: {
           id: 'not-exist',
         },
       };
 
+      // Panggil handler yang diuji
       const response = deleteNoteByIdHandler(request, mockH);
+
+      // Verifikasi response error
       expect(response.status).toBe('fail');
       expect(response.message).toBe('Catatan gagal dihapus. Id tidak ditemukan');
       expect(response.statusCode).toBe(404);
